@@ -10,6 +10,7 @@ logging.basicConfig(level=logging.INFO,
 
 CONN_STRING = "dbname='paperdb' user='postgres' host='127.0.0.1' password='password'"
 
+FTP_URL = 'ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/by_year/%s'
 SIGNALS = set(['PRCP', 'SNOW', 'SNWD', 'TMIN', 'TMAX'])
 # PRCP = Precipitation (tenths of mm)
 # SNOW = Snowfall (mm)
