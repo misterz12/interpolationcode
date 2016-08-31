@@ -5,9 +5,13 @@ Created on Aug 5, 2016
 '''
 
 import logging
+import os
+import subprocess
+import urllib.request
 from math import radians, cos, sin, asin, sqrt
 
 import settings
+
 
 logger = logging.getLogger('utils')
 
@@ -30,7 +34,6 @@ def get_station_data():
     return stations
 
 
-
 def distance(lon1, lat1, lon2, lat2):
     """
     Calculate the great circle distance between two points 
@@ -48,3 +51,12 @@ def distance(lon1, lat1, lon2, lat2):
     return c * r
 
 
+def download_data(filename):
+    logger.info('downloading %s' % filename)
+    urllib.request.urlretrieve(settings.FTP_URL % filename, filename)
+    logger.info('extracting %s' % filename)
+    subprocess.call(['gunzip', filename])
+    filename = filename.replace('.gz', '')
+    logger.info('sorting %s' % filename)
+    subprocess.call(['sort', '-t,', '-k', '2', '-o', 'sorted_%s' % filename, filename])
+    os.remove(filename)
