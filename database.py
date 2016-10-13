@@ -17,7 +17,7 @@ SELECT gid, ST_X(ST_Centroid(geom)) as clng, ST_Y(ST_Centroid(geom)) as clat, na
 WHERE ST_DWithin(geom, (SELECT point FROM data), 100) 
 ORDER BY geom <#> (SELECT point FROM data) ASC LIMIT 1"""
 
-#TODO: fixme
+#For whole world remove WHERE condition
 get_all_counties_query = "SELECT gid, ST_X(ST_Centroid(geom)) as clng, ST_Y(ST_Centroid(geom)) as clat, name_0, name_1, name_2 FROM adm2 WHERE name_0 = 'United States'"
 
 
