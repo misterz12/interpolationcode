@@ -9,6 +9,7 @@ import settings
 from psycopg2._json import Json
 
 connection = psycopg2.connect(settings.CONN_STRING)
+connection.autocommit = True
 cursor = connection.cursor()
 
 get_county_query = "SELECT gid, ST_X(ST_Centroid(geom)) as clng, ST_Y(ST_Centroid(geom)) as clat, name_0, name_1, name_2 FROM adm2 WHERE ST_Contains(geom, ST_SetSRID(ST_MakePoint(%s, %s), 4326)) LIMIT 1"
@@ -42,6 +43,6 @@ def add_county_readings(readings):
         reading[2] = Json(reading[2])
     data = ','.join(cursor.mogrify('(%s,%s,%s)', reading).decode('utf-8') for reading in readings)
     cursor.execute('INSERT INTO readings(day, county_id, data) values ' + data)
-    connection.commit()
+    #connection.commit()
     
     
