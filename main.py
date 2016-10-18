@@ -61,7 +61,7 @@ for readings_file in readings_files:
         
         if previous_day and previous_day != day:
             #do not process very recent data as it may be incomplete
-            if datetime.datetime.now() - datetime.datetime.strptime(previous_day, '%Y%m%d') > datetime.timedelta(days=2):
+            if datetime.datetime.now() - datetime.datetime.strptime(previous_day, '%Y%m%d') > datetime.timedelta(days=7):
                 logger.info('processing day: %s, with %d entries' % (previous_day, len(daily_data)))
                 try:
                     result = processor.process_day(previous_day, daily_data)
@@ -72,6 +72,6 @@ for readings_file in readings_files:
         previous_day = day
         
     #process remaining data (last_day) if not too recent; see Readme for year changes
-    if datetime.datetime.now() - datetime.datetime.strptime(day, '%Y%m%d') > datetime.timedelta(days=2):
+    if datetime.datetime.now() - datetime.datetime.strptime(day, '%Y%m%d') > datetime.timedelta(days=7):
         logger.info('processing day: %s, with %d entries' % (day, len(daily_data)))
         result = processor.process_day(day, daily_data)
