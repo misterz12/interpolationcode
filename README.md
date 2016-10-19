@@ -1,7 +1,14 @@
 # interpolationcode
 
 ##About
-The purpose of this project is to process historic weather data from [GHCN](ftp://ftp.ncdc.noaa.gov/) and integrate it with boundary data from [GADM](http://www.gadm.org/).
+The purpose of this project is to process historic weather data from *GHCN* and integrate it with boundary data from *GADM*.
+
+##Data Sources
+
+ - GHCN weather data: ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/by_year/
+ - GHCN station data: *ghcnd-stations.txt*
+	 - download the data from ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt and make sure the path in `settings.py` (see below) is pointing to the correct location
+ - GADM boundary data: http://www.gadm.org/ 
 
 ##Installation
 ###Postgres
@@ -12,7 +19,7 @@ Follow the installation [instructions](https://wiki.postgresql.org/wiki/Apt) and
  - tweak Postgres performance settings in `/etc/postgresql/9.5/main/postgresql.conf`
  - create a password for the `postgres` database user by logging in as postgres and using `ALTER ROLE`
  - create a new database (`weather`) and install the postgis extension using `CREATE EXTENSION`
- - download the data from GADM, extract it and import the it using `shp2pgsql -s 4326 -I -g geom -c gadm28_adm0.shp public.adm0 | psql -q -h 127.0.0.1 -U postgres -d weather`; use the command for each level you want (0,1,2 etc.)
+ - download the data from GADM, extract it and import the it using `shp2pgsql -s 4326 -I -g geom -c gadm28_adm0.shp public.adm0 | psql -q -h 127.0.0.1 -U postgres -d weather`; use the command for each level you want (*adm0*, *adm1*, *adm2* etc.)
 
 ###Python
 The application has been tested using Python 3 which is already installed in Ubuntu.
@@ -26,11 +33,11 @@ Install the needed packages:
 There are two scripts that need to be used: `downloader.py` and `main.py`.
 
 ###Downloader
-It is used to automatically retrieve and sort (see *Notes*) data from the [FTP source](ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/by_year/). Before downloading files make sure you have enough disk space to hold the uncompressed data for the year span selected: `python downloader.py START_YEAR STOP_YEAR`.
+It is used to automatically retrieve and sort (see [Notes](#Notes) 1) data from the [FTP source](ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/by_year/). Before downloading files make sure you have enough disk space to hold the uncompressed data for the year span selected: `python downloader.py START_YEAR STOP_YEAR`.
 
 ###Main
-Before running the processing script make sure you have downloaded the station data file [ghcnd-stations.txt](ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt) the path in `settings.py` is pointing to the correct location. Also make sure the table structure is created by running the SQL commands in `data/database.sql`.
-The main script has two operation modes (see *Notes*):
+Make sure the table structure is created by running the *CREATE* SQL commands in `data/database.sql`.
+The main script has two operation modes (see [Notes](#Notes) 2,3,4):
  - process already downloaded data using `python main.py "DATA_FILES"`
  - process current year data: `python main.py`
 
