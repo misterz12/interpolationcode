@@ -11,6 +11,8 @@ The purpose of this project is to process historic weather data from *GHCN* and 
  - GADM boundary data: http://www.gadm.org/ 
 
 ##Installation
+These installation instructions have been tested on a Ubuntu *14.04 LTS* AWS EC2 *c4.large* instance.
+
 ###Postgres
 Follow the installation [instructions](https://wiki.postgresql.org/wiki/Apt) and install Postgres and PostGiS:
 
@@ -25,7 +27,7 @@ Follow the installation [instructions](https://wiki.postgresql.org/wiki/Apt) and
 The application has been tested using Python 3 which is already installed in Ubuntu.
 Install the needed packages:
 
- -  `sudo apt-get install python3-pip postgresql-server-dev-9.5 libspatialindex-dev`
+ - `sudo apt-get install python3-pip postgresql-server-dev-9.5 libspatialindex-dev`
  - `sudo pip3 install psycopg2 rtree`
  - copy the source files or use git `git clone REPO_URL` and review the settings file
 
@@ -33,13 +35,18 @@ Install the needed packages:
 There are two scripts that need to be used: `downloader.py` and `main.py`.
 
 ###Downloader
-It is used to automatically retrieve and sort (see [Notes](#Notes) 1) data from the [FTP source](ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/by_year/). Before downloading files make sure you have enough disk space to hold the uncompressed data for the year span selected: `python downloader.py START_YEAR STOP_YEAR`.
+It is used to automatically retrieve and sort (see [Notes](#notes) 1) data from the [FTP source](ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/by_year/). Before downloading files make sure you have enough disk space to hold the uncompressed data for the year span selected: `python downloader.py START_YEAR STOP_YEAR`.
 
 ###Main
 Make sure the table structure is created by running the *CREATE* SQL commands in `data/database.sql`.
-The main script has two operation modes (see [Notes](#Notes) 2,3,4):
+The main script has two operation modes (see [Notes](#notes) 2,3,4):
  - process already downloaded data using `python main.py "DATA_FILES"`
  - process current year data: `python main.py`
+ 
+###Crontab
+In order to process current year data on a daily basis one needs to setup a cron entry for it. The `run.sh` file is intended to be run from cron. For example to run the script each day at 09 AM use:
+
+`0 9 * * * /home/ubuntu/icode/run.sh`
 
 ##Querying
 To retrieve information from the table use a query like:
@@ -48,9 +55,10 @@ FROM readings INNER JOIN adm2 ON adm2.gid = readings.county_id
 WHERE day = '2015-01-01' AND adm2.name_0='United States' AND name_1='Minnesota' AND name_2='Faribault'`
 
 ##Notes
+
 1) The input data sorting is needed because I noticed there are a few entries that are not sorted (for example for 28th of February - 1st of March).
 
-2)As the processing can take quite a long time it is recommended to run the download and processing scripts on multiple cores / machines by running multiple instances (for example one instance for each 50-100 years).
+2) As the processing can take quite a long time it is recommended to run the download and processing scripts on multiple cores / machines by running multiple instances (for example one instance for each 50-100 years).
 
 3) When running the main script make sure you use the double quotes if using shell expansion when specifying the input file path because otherwise the shell will expand it and it won't be correctly processed by the script; for example "data/sorted_19*.csv" include the double quotes.
 
