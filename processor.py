@@ -51,19 +51,26 @@ def process_day(day, daily_data, max_neigh=8, pw=2):
     for county in _counties:
         reading_data = {}
         for signal in settings.SIGNALS:
-            near_stations = idxs[signal].nearest((county[1], county[2]), max_neigh)
+            near_stations = []
+            if signal in idxs:
+                near_stations = idxs[signal].nearest((county[1], county[2]), max_neigh)
             sumd = 0
             iv = 0
             wsum = 0
+            nrc = 0
             for near_station in near_stations:
                 reading = reading_by_id[near_station]
                 s = _stations[reading[0]]
                 d = utils.distance(county[1], county[2], s['lng'],s['lat'])
                 if d > 100: #too far > 100 km
                     continue
+                nrc += 1
                 sumd += d
                 wsum += 1 / (d ** pw)
                 iv += 1 / (d**pw) * reading[1][signal]
+            
+            if nrc < 3:
+                logger.warning('calculating %s for %s with only %d samples' % (signal, county[3:6], nrc))
             
             if wsum != 0:
                 iv = iv / wsum
