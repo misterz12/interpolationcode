@@ -21,7 +21,7 @@ Follow the installation [instructions](https://wiki.postgresql.org/wiki/Apt) and
  - tweak Postgres performance settings in `/etc/postgresql/9.5/main/postgresql.conf`
  - create a password for the `postgres` database user by logging in as postgres and using `ALTER ROLE`
  - create a new database (`weather`) and install the postgis extension using `CREATE EXTENSION`
- - download the data from GADM, extract it and import the it using `shp2pgsql -s 4326 -I -g geom -c gadm28_adm0.shp public.adm0 | psql -q -h 127.0.0.1 -U postgres -d weather`; use the command for each level you want (*adm0*, *adm1*, *adm2* etc.)
+ - download the data from GADM, extract it and import the it using `shp2pgsql -s 4326 -I -g geom -c gadm28_adm0.shp public.adm0 | psql -q -h 127.0.0.1 -U postgres -d weather`; use the command for each level needed (*adm0*, *adm1*, *adm2* etc.)
 
 ###Python
 The application has been tested using Python 3 which is already installed in Ubuntu.
@@ -29,7 +29,7 @@ Install the needed packages:
 
  - `sudo apt-get install python3-pip postgresql-server-dev-9.5 libspatialindex-dev`
  - `sudo pip3 install psycopg2 rtree`
- - copy the source files or use git `git clone REPO_URL` and review the settings file
+ - copy the source files or use `git clone REPO_URL` and review the settings file (paths, database connection details etc.)
 
 ##Processing
 There are two scripts that need to be used: `downloader.py` and `main.py`.
@@ -62,8 +62,10 @@ WHERE day = '2015-01-01' AND adm2.name_0='United States' AND name_1='Minnesota' 
 
 3) When running the main script make sure you use the double quotes if using shell expansion when specifying the input file path because otherwise the shell will expand it and it won't be correctly processed by the script; for example "data/sorted_19*.csv" include the double quotes.
 
-4) Because for recent days data is being added after the day first becomes available in the file the main script will only process data older than at least 7 days to allow the data to be completed; this means the main script will have to be run after New Year using the previous year after the 8th of January so all data is imported.
+4) Because for recent days/weks data is being added after the day first becomes available in the data file the application will check the existing data and update the data with the new values only if they are different; this is to avoid table bloat in the Postgres database caused by excessive updating.
 
 5) The query uses  `->>` because the data is stored as JSON in Postgres; this allows us to process more or less signals in the future if needed.
 
 6) The current version only processes stations in the United States; if other areas are needed one has to open the `database.py` file and edit `get_all_counties_query`.
+
+7) If one needs smaller regions to be processed (*adm3* and above) tweak the queries in the `database.py` file.
