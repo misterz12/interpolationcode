@@ -60,18 +60,15 @@ for readings_file in readings_files:
         daily_data[code][signal] = value
         
         if previous_day and previous_day != day:
-            #do not process very recent data as it may be incomplete
-            if datetime.datetime.now() - datetime.datetime.strptime(previous_day, '%Y%m%d') > datetime.timedelta(days=7):
-                logger.info('processing day: %s, with %d entries' % (previous_day, len(daily_data)))
-                try:
-                    result = processor.process_day(previous_day, daily_data)
-                except Exception as e:
-                    logger.warning('cannot store data: %s' % e)
+            logger.info('processing day: %s, with %d entries' % (previous_day, len(daily_data)))
+            try:
+                result = processor.process_day(previous_day, daily_data)
+            except Exception as e:
+                logger.warning('cannot store data: %s' % e)
             daily_data = {}
         
         previous_day = day
         
-    #process remaining data (last_day) if not too recent; see Readme for year changes
-    if datetime.datetime.now() - datetime.datetime.strptime(day, '%Y%m%d') > datetime.timedelta(days=7):
-        logger.info('processing day: %s, with %d entries' % (day, len(daily_data)))
-        result = processor.process_day(day, daily_data)
+    logger.info('processing day: %s, with %d entries' % (day, len(daily_data)))
+    result = processor.process_day(day, daily_data)
+    

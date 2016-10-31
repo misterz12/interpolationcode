@@ -77,6 +77,7 @@ def process_day(day, daily_data, max_neigh=8, pw=2):
         reading = [day, county[0], reading_data]
         readings.append(reading)
     
-    database.add_county_readings(readings)
+    result = database.add_county_readings(readings)
+    logger.info('day: %s, result: %d inserted readings, %d updated readings' % (day, result[0], result[1]))
 
     

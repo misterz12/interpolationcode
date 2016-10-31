@@ -39,10 +39,45 @@ def get_all_counties():
 
 
 def add_county_readings(readings):
-    for reading in readings:
-        reading[2] = Json(reading[2])
-    data = ','.join(cursor.mogrify('(%s,%s,%s)', reading).decode('utf-8') for reading in readings)
-    cursor.execute('INSERT INTO readings(day, county_id, data) values ' + data)
-    #connection.commit()
     
+    if not readings:
+        return [0, 0]
+    
+    cursor.execute('SELECT day, county_id, data FROM readings WHERE day=%s', (readings[0][0], ))
+    rows = cursor.fetchall()
+    reading_by_county = {}
+    for row in rows:
+        reading_by_county[row[1]] = row[2]
+        
+    insert_readings = []
+    update_readings = []
+    for reading in readings:
+        current_reading = reading_by_county.get(reading[1], None)
+        if not current_reading:
+            reading[2] = Json(reading[2])
+            insert_readings.append(reading)
+        else:
+            different = False
+            for k, v in reading[2].items():
+                if v is None:
+                    continue
+                if current_reading.get(k, None) is None:
+                    different = True
+                    break
+                if abs(v-current_reading[k]) > 0.001:
+                    different = True
+                    break
+            
+            if different:
+                reading[2] = Json(reading[2])
+                update_readings.append(reading)
+    
+    if insert_readings:
+        data = ','.join(cursor.mogrify('(%s,%s,%s)', reading).decode('utf-8') for reading in insert_readings)
+        cursor.execute('INSERT INTO readings(day, county_id, data) values ' + data)
+    
+    for reading in update_readings:
+        cursor.execute('UPDATE readings SET data=%s WHERE day=%s AND county_id=%s', (reading[2], reading[0], reading[1]))
+    
+    return len(insert_readings), len(update_readings)
     
