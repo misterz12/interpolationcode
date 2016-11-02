@@ -23,7 +23,8 @@ Follow the installation [instructions](https://wiki.postgresql.org/wiki/Apt) and
  - create a new database (`weather`) and install the postgis extension using `CREATE EXTENSION`
  - download the adm level data in shapefile format from GADM for the whole world; current version is 2.8 available [here](http://biogeo.ucdavis.edu/data/gadm2.8/gadm28_levels.shp.zip)
  - extract the shapefile data and import it (use the command for each level needed: *adm0*, *adm1*, *adm2* etc.):
-  `shp2pgsql -s 4326 -I -g geom -c gadm28_adm0.shp public.adm0 | psql -q -h 127.0.0.1 -U postgres -d weather`
+
+`shp2pgsql -s 4326 -I -g geom -c gadm28_adm0.shp public.adm0 | psql -q -h 127.0.0.1 -U postgres -d weather`
 
 ###Python
 The application has been tested using Python 3 which is already installed in Ubuntu.
