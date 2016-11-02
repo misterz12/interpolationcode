@@ -8,7 +8,7 @@ The purpose of this project is to process historic weather data from *GHCN* and 
  - GHCN weather data: ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/by_year/
  - GHCN station data: *ghcnd-stations.txt*
 	 - download the data from ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt and make sure the path in `settings.py` (see below) is pointing to the correct location
- - GADM boundary data: http://www.gadm.org/ 
+ - GADM boundary data: http://www.gadm.org/
 
 ##Installation
 These installation instructions have been tested on a Ubuntu *14.04 LTS* AWS EC2 *c4.large* instance.
@@ -21,7 +21,9 @@ Follow the installation [instructions](https://wiki.postgresql.org/wiki/Apt) and
  - tweak Postgres performance settings in `/etc/postgresql/9.5/main/postgresql.conf`
  - create a password for the `postgres` database user by logging in as postgres and using `ALTER ROLE`
  - create a new database (`weather`) and install the postgis extension using `CREATE EXTENSION`
- - download the data from GADM, extract it and import the it using `shp2pgsql -s 4326 -I -g geom -c gadm28_adm0.shp public.adm0 | psql -q -h 127.0.0.1 -U postgres -d weather`; use the command for each level needed (*adm0*, *adm1*, *adm2* etc.)
+ - download the adm level data in shapefile format from GADM for the whole world; current version is 2.8 available [here](http://biogeo.ucdavis.edu/data/gadm2.8/gadm28_levels.shp.zip)
+ - extract the shapefile data and import it (use the command for each level needed: *adm0*, *adm1*, *adm2* etc.):
+  `shp2pgsql -s 4326 -I -g geom -c gadm28_adm0.shp public.adm0 | psql -q -h 127.0.0.1 -U postgres -d weather`
 
 ###Python
 The application has been tested using Python 3 which is already installed in Ubuntu.
