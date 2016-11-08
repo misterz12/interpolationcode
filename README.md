@@ -45,6 +45,10 @@ Make sure the table structure is created by running the *CREATE* SQL commands in
 The main script has two operation modes (see [Notes](#notes) 2,3,4):
  - process already downloaded data using `python main.py "DATA_FILES"`
  - process current year data: `python main.py`
+
+The results are calculated using the [IDW method](https://en.wikipedia.org/wiki/Inverse_distance_weighting) (Inverse Distance Weighting). For each administrative level (US counties by default) all stations within a 100 km distance that have valid readings are used to calculate the interpolated value. The application uses by default the closest 8 readings (parameter `max_neigh=8`) and the IDW *power parameter* is by default 2 (`pw=2`).
+If there are less than 3 near samples that can be used for the calculation a warning message is logged containing the number of samples used. If there is no near sample available the interpolated value is `None` (`NULL` in the database).
+For the temperature signals (`TMIN`, `TMAX`) an additional transformation is applied because the source data is in tenths of degrees C.
  
 ###Crontab
 In order to process current year data on a daily basis one needs to setup a cron entry for it. The `run.sh` file is intended to be run from cron. For example to run the script each day at 09 AM use:
