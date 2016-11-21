@@ -76,3 +76,5 @@ WHERE day = '2015-01-01' AND adm2.name_0='United States' AND name_1='Minnesota' 
 6) The current version only processes stations in the United States; if other areas are needed one has to open the `database.py` file and edit `get_all_counties_query`.
 
 7) If one needs smaller regions to be processed (*adm3* and above) tweak the queries in the `database.py` file.
+
+8) As more stations become available in the `ghcnd-stations.txt` file the local copy (in the data folder) needs to be updated so that the analysis can run successfully.
