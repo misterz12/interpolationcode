@@ -1,19 +1,19 @@
 # interpolationcode
 
-##About
+## About
 The purpose of this project is to process historic weather data from *GHCN* and integrate it with boundary data from *GADM*.
 
-##Data Sources
+## Data Sources
 
  - GHCN weather data: ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/by_year/
  - GHCN station data: *ghcnd-stations.txt*
 	 - download the data from ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt and make sure the path in `settings.py` (see below) is pointing to the correct location
  - GADM boundary data: http://www.gadm.org/
 
-##Installation
+## Installation
 These installation instructions have been tested on a Ubuntu *14.04 LTS* AWS EC2 *c4.large* instance.
 
-###Postgres
+### Postgres
 Follow the installation [instructions](https://wiki.postgresql.org/wiki/Apt) and install Postgres and PostGiS:
 
  - add the repo to apt sources and import the repo key
@@ -26,7 +26,7 @@ Follow the installation [instructions](https://wiki.postgresql.org/wiki/Apt) and
 
 `shp2pgsql -s 4326 -I -g geom -c gadm28_adm0.shp public.adm0 | psql -q -h 127.0.0.1 -U postgres -d weather`
 
-###Python
+### Python
 The application has been tested using Python 3 which is already installed in Ubuntu.
 Install the needed packages:
 
@@ -34,13 +34,13 @@ Install the needed packages:
  - `sudo pip3 install psycopg2 rtree`
  - copy the source files or use `git clone REPO_URL` and review the settings file (paths, database connection details etc.)
 
-##Processing
+## Processing
 There are two scripts that need to be used: `downloader.py` and `main.py`.
 
-###Downloader
+### Downloader
 It is used to automatically retrieve and sort (see [Notes](#notes) 1) data from the [FTP source](ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/by_year/). Before downloading files make sure you have enough disk space to hold the uncompressed data for the year span selected: `python downloader.py START_YEAR STOP_YEAR`.
 
-###Main
+### Main
 Make sure the table structure is created by running the *CREATE* SQL commands in `data/database.sql`.
 The main script has two operation modes (see [Notes](#notes) 2,3,4):
  - process already downloaded data using `python main.py "DATA_FILES"`
@@ -50,18 +50,18 @@ The results are calculated using the [IDW method](https://en.wikipedia.org/wiki/
 If there are less than 3 near samples that can be used for the calculation a warning message is logged containing the number of samples used. If there is no near sample available the interpolated value is `None` (`NULL` in the database).
 For the temperature signals (`TMIN`, `TMAX`) an additional transformation is applied because the source data is in tenths of degrees C.
  
-###Crontab
+### Crontab
 In order to process current year data on a daily basis one needs to setup a cron entry for it. The `run.sh` file is intended to be run from cron. For example to run the script each day at 09 AM use:
 
 `0 9 * * * /home/ubuntu/icode/run.sh`
 
-##Querying
+## Querying
 To retrieve information from the table use a query like:
 `SELECT (readings.data->>'TMAX')::float
 FROM readings INNER JOIN adm2 ON adm2.gid = readings.county_id
 WHERE day = '2015-01-01' AND adm2.name_0='United States' AND name_1='Minnesota' AND name_2='Faribault'`
 
-##Notes
+## Notes
 
 1) The input data sorting is needed because I noticed there are a few entries that are not sorted (for example for 28th of February - 1st of March).
 
